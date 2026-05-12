@@ -1,1 +1,1 @@
-web: DJANGO_SETTINGS_MODULE=myproject.settings daphne -b 0.0.0.0 -p $PORT myproject.asgi:application
+web: python -m daphne -b 0.0.0.0 -p $PORT myproject.asgi:application
