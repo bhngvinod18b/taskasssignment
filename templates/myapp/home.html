@@ -2,68 +2,68 @@
 <html>
 
 <head>
-    <title>Home</title>
+<title>Home</title>
 
-    <style>
+<style>
 
-        body{
-            margin:0;
-            font-family:Arial;
-            background:#f4f6f9;
-        }
+body{
+    margin:0;
+    font-family:Arial;
+    background:#f4f6f9;
+}
 
-        .topbar{
-            background:#075e54;
-            color:white;
-            padding:15px 25px;
-        }
+.topbar{
+    background:#075e54;
+    color:white;
+    padding:15px 25px;
+}
 
-        .container{
-            padding:25px;
-        }
+.container{
+    padding:25px;
+}
 
-        table{
-            width:100%;
-            border-collapse:collapse;
-            background:white;
-            box-shadow:0 2px 10px rgba(0,0,0,0.1);
-        }
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
 
-        th, td{
-            padding:12px;
-            border-bottom:1px solid #ddd;
-        }
+th, td{
+    padding:12px;
+    border-bottom:1px solid #ddd;
+}
 
-        th{
-            background:#075e54;
-            color:white;
-        }
+th{
+    background:#075e54;
+    color:white;
+}
 
-        .pending{ color:orange; font-weight:bold; }
-        .todo{ color:#3498db; font-weight:bold; }
-        .completed{ color:green; font-weight:bold; }
+.pending{ color:orange; font-weight:bold; }
+.todo{ color:#3498db; font-weight:bold; }
+.completed{ color:green; font-weight:bold; }
 
-        .links{
-            margin-top:20px;
-        }
+.links{
+    margin-top:20px;
+}
 
-        .links a{
-            margin-right:15px;
-            text-decoration:none;
-            color:#075e54;
-            font-weight:bold;
-        }
+.links a{
+    margin-right:15px;
+    text-decoration:none;
+    color:#075e54;
+    font-weight:bold;
+}
 
-        /* 🔔 LIVE NOTIFICATION (INBOX STYLE) */
-        .notification{
-            background:#e7f3ff;
-            padding:10px;
-            margin-bottom:10px;
-            border-radius:6px;
-            border-left:4px solid #075e54;
-        }
+/* 🔔 notifications */
+.notification{
+    background:#e7f3ff;
+    padding:10px;
+    margin-bottom:10px;
+    border-radius:6px;
+    border-left:4px solid #075e54;
+}
 
-    </style>
+</style>
 
 </head>
 
@@ -76,79 +76,80 @@
 
 <div class="container">
 
-    <!-- 🔔 LIVE NOTIFICATIONS AREA -->
-    <div id="live-box"></div>
+<div id="live-box"></div>
 
-    <h3>📌 Your Tasks</h3>
+<h3>📌 Your Tasks</h3>
 
-    {% if task %}
+{% if task %}
 
-    <table>
+<table>
 
-        <tr>
-            <th>Employee ID</th>
-            <th>Task</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
+<tr>
+    <th>Employee ID</th>
+    <th>Task</th>
+    <th>Status</th>
+    <th>Action</th>
+</tr>
 
-        {% for t in task %}
-        <tr>
+{% for t in task %}
+<tr>
 
-            <td>
-                {% if t.user.myprofile %}
-                    {{ t.user.myprofile.employe_id }}
-                {% else %}
-                    Not set
-                {% endif %}
-            </td>
+    <td>
+        {% if t.user.myprofile %}
+            {{ t.user.myprofile.employe_id }}
+        {% else %}
+            Not set
+        {% endif %}
+    </td>
 
-            <td>{{ t.task }}</td>
+    <td>{{ t.task }}</td>
 
-            <td>
-                {% if t.status == "pending" %}
-                    <span class="pending">🟡 Pending</span>
-                {% elif t.status == "todo" %}
-                    <span class="todo">🔵 Todo</span>
-                {% elif t.status == "completed" %}
-                    <span class="completed">🟢 Completed</span>
-                {% endif %}
-            </td>
+    <td>
+        {% if t.status == "pending" %}
+            <span class="pending">🟡 Pending</span>
+        {% elif t.status == "todo" %}
+            <span class="todo">🔵 Todo</span>
+        {% elif t.status == "completed" %}
+            <span class="completed">🟢 Completed</span>
+        {% endif %}
+    </td>
 
-            <td>
-                <form method="post" action="{% url 'edit_task' t.id %}">
-                    {% csrf_token %}
-                    <select name="status" onchange="this.form.submit()">
-                        <option disabled selected>Action</option>
-                        <option value="pending">Pending</option>
-                        <option value="todo">Todo</option>
-                        <option value="completed">Completed</option>
-                    </select>
-                </form>
-            </td>
+    <td>
+        <form method="post" action="{% url 'edit_task' t.id %}">
+            {% csrf_token %}
+            <select name="status" onchange="this.form.submit()">
+                <option disabled selected>Action</option>
+                <option value="pending">Pending</option>
+                <option value="todo">Todo</option>
+                <option value="completed">Completed</option>
+            </select>
+        </form>
+    </td>
 
-        </tr>
-        {% endfor %}
+</tr>
+{% endfor %}
 
-    </table>
+</table>
 
-    {% else %}
-        <p>No tasks assigned.</p>
-    {% endif %}
+{% else %}
+<p>No tasks assigned.</p>
+{% endif %}
 
-    <div class="links">
-        <a href="{% url 'myprofile' %}">👤 Profile</a>
-        <a href="{% url 'inbox' %}">💬 Inbox</a>
-        <a href="{% url 'logout' %}">🚪 Logout</a>
-    </div>
+<div class="links">
+    <a href="{% url 'myprofile' %}">👤 Profile</a>
+    <a href="{% url 'inbox' %}">💬 Inbox</a>
+    <a href="{% url 'logout' %}">🚪 Logout</a>
+</div>
 
 </div>
 
-<!-- 🔥 WEBSOCKET (SAME AS INBOX) -->
+<!-- 🔥 WEBSOCKET FIXED (PRODUCTION SAFE) -->
 <script>
 
-const socket = new WebSocket(
-    "ws://" + window.location.host + "/ws/inbox/"
+const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+
+let socket = new WebSocket(
+    wsProtocol + "://" + window.location.host + "/ws/inbox/"
 );
 
 socket.onopen = function(){
@@ -172,6 +173,13 @@ socket.onmessage = function(event){
     setTimeout(() => {
         box.remove();
     }, 5000);
+};
+
+socket.onclose = function(){
+    console.log("WebSocket closed, retrying...");
+    setTimeout(() => {
+        location.reload();
+    }, 3000);
 };
 
 socket.onerror = function(){
