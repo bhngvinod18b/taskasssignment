@@ -183,32 +183,6 @@ def inbox(request):
 
 
 # 🔹 Chat with selected user
-@login_required
-def ct(request, user_id):
-    other_user = get_object_or_404(User, id=user_id)
-
-    # SEND MESSAGE
-    if request.method == 'POST':
-        content = request.POST.get('content')
-
-        if content:
-            Notification.objects.create(
-                sender=request.user,
-                reciver=other_user,   # your field name
-                content=content
-            )
-            return redirect('chat', user_id=other_user.id)
-
-    # GET CHAT
-    messages = Notification.objects.filter(
-        Q(sender=request.user, reciver=other_user) |
-        Q(sender=other_user, reciver=request.user)
-    ).order_by('created_at')
-
-    return render(request, 'myapp/chat.html', {
-        'messages': messages,
-        'other_user': other_user
-    })
 
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
