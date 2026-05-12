@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manager Dashboard</title>
+
+    <style>
+
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #f4f6f9;
+        }
+
+        /* TOP BAR */
+        .topbar {
+            background: #075e54;
+            color: white;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .topbar h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .topbar span {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* LAYOUT */
+        .layout {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+
+        /* MENU */
+        .menu {
+            width: 220px;
+            background: #ffffff;
+            border-right: 1px solid #ddd;
+            padding: 15px;
+        }
+
+        .menu h3 {
+            color: #075e54;
+        }
+
+        .menu a {
+            display: block;
+            padding: 12px;
+            margin-bottom: 10px;
+            text-decoration: none;
+            color: #333;
+            border-radius: 8px;
+        }
+
+        .menu a:hover {
+            background: #f0f0f0;
+        }
+
+        .active {
+            background: #dcf8c6;
+            font-weight: bold;
+        }
+
+        /* CONTENT */
+        .content {
+            flex: 1;
+            padding: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 300px;
+        }
+
+        input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            padding: 10px;
+            background: #075e54;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #064c45;
+        }
+
+        /* POPUP */
+        .popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 12px 15px;
+            width: 260px;
+            border-left: 5px solid #075e54;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            z-index: 9999;
+            border-radius: 8px;
+            animation: slide 0.3s ease;
+        }
+
+        @keyframes slide {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .popup strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* LIVE NOTIFICATIONS */
+        #live-box {
+            margin-bottom: 20px;
+        }
+
+        .notification {
+            background: white;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid #075e54;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+    </style>
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+    <h2>📊 Manager Panel</h2>
+    <span>👋 Welcome {{ request.user.username }}</span>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+    <!-- MENU -->
+    <div class="menu">
+
+        <h3>Menu</h3>
+
+        <a class="active" href="{% url 'manager_profile' %}">👤 Profile</a>
+
+        <a href="{% url 'give_task' %}">📌 Give Task</a>
+
+        <a href="{% url 'manager_dashboard' %}">📊 Dashboard</a>
+
+        <a href="{% url 'inbox' %}">💬 Inbox</a>
+
+        <a href="{% url 'home' %}">🏠 Home</a>
+
+        <a href="{% url 'logout' %}">🚪 Logout</a>
+
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+        <!-- LIVE MESSAGE AREA -->
+        <div id="live-box"></div>
+
+        <!-- PROFILE CARD -->
+        <div class="card">
+
+            <h3>Update Profile</h3>
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <label>Phone Number</label>
+
+                <input
+                    type="text"
+                    name="phone"
+                    value="{{ manager.phone|default:'' }}"
+                    placeholder="Enter phone"
+                >
+
+                <button type="submit">Save</button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- WEBSOCKET -->
+<script>
+
+const inboxSocket = new WebSocket(
+    "ws://" + window.location.host + "/ws/inbox/"
+);
+
+let popup = null;
+
+inboxSocket.onopen = function () {
+    console.log("WebSocket Connected");
+};
+
+inboxSocket.onmessage = function(event) {
+
+    const data = JSON.parse(event.data);
+
+    // REMOVE OLD POPUP
+    if (popup) {
+        popup.remove();
+    }
+
+    // CREATE POPUP
+    popup = document.createElement("div");
+
+    popup.classList.add("popup");
+
+    popup.innerHTML = `
+        <strong>${data.sender}</strong>
+        <span>${data.message}</span>
+    `;
+
+    document.body.appendChild(popup);
+
+    // CREATE LIVE NOTIFICATION
+    const box = document.createElement("div");
+
+    box.classList.add("notification");
+
+    box.innerHTML = `
+        <strong>${data.sender}</strong>
+        <p>${data.message}</p>
+    `;
+
+    document.getElementById("live-box").prepend(box);
+
+    // AUTO REMOVE POPUP
+    setTimeout(() => {
+
+        if (popup) {
+            popup.remove();
+            popup = null;
+        }
+
+        box.remove();
+
+    }, 5000);
+};
+
+inboxSocket.onerror = function () {
+    console.log("WebSocket Error");
+};
+
+inboxSocket.onclose = function () {
+    console.log("WebSocket Closed");
+};
+
+</script>
+
+</body>
+</html>

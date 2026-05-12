@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Give Task</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+        }
+        .container {
+            width: 400px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Assign Task</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <!-- Select User -->
+        <label>Select User:</label>
+        <select name="user" required>
+            <option value="">-- Select User --</option>
+            {% for u in users %}
+                <option value="{{ u.id }}">{{ u.username }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Task -->
+        <label>Task:</label>
+        <textarea name="task" placeholder="Enter task..." required></textarea>
+
+        <!-- Status -->
+        <label>Status:</label>
+        <select name="status" required>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+        </select>
+
+        <button type="submit">Assign Task</button>
+    </form>
+</div>
+
+</body>
+</html>
