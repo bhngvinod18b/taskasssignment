@@ -26,12 +26,7 @@ SECRET_KEY = 'django-insecure-v_f*2$5l)xbz=5@*k-3z(0gibi-8psgztl_e!egd&yqu2vipo$
 DEBUG = False
 
 
-ALLOWED_HOSTS = [
-    "taskasssignment.onrender.com",
-    "localhost",
-    "127.0.0.1",
-]
-
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
@@ -45,17 +40,24 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+    'rest_framework',
     'myapp',
     
     
 ]
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
 }
+
+CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_RESULT_BACKEND = "redis://redis:6379/0"
 ASGI_APPLICATION = 'myproject.asgi.application'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -132,3 +134,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
